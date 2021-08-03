@@ -5,9 +5,11 @@ from PyQt5.QtWidgets import QApplication
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtWidgets import QWidget
 
+from synth import Synth
+
 app = QApplication(sys.argv)
 
-window = QWidget()
+window = Synth()
 window.setWindowTitle('PyQt5 App')
 window.setGeometry(100, 100, 280, 80)
 window.move(60, 15)

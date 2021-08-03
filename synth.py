@@ -1,8 +1,7 @@
 import numpy as np      #import needed modules
-from scipy.io.wavfile import write     #sudo apt-get install python-pyaudio
+from scipy.io.wavfile import write     
 import pyaudio
 import wave
-import time
 
 class Synth():
 
@@ -13,8 +12,8 @@ class Synth():
     filename_prefix = "NOTE_"
     filename_extension = ".wav"
     chunk_size = 1024
-
     p = pyaudio.PyAudio()
+
 
     def synthesizeNote(self, frequency, c1, c2, c3, c4):
         sample_number = np.arange(int(self.duration_s*frequency)* self.sps)
@@ -33,7 +32,7 @@ class Synth():
             
             write(wavfile_name, self.sps, base_waveform_int16)
 
-        self.filenames.append(wavfile_name)
+        self.filenames.append(wave.open(wavfile_name, "rb"))
         return wavfile_name
 
     def squishify(self, sample_array):
@@ -53,9 +52,10 @@ class Synth():
                     output=True)
         
 
-        note_files = self.get_file_pointers()
+        note_files = self.filenames
 
         while True:
+            
             if len(note_files) == 0: return
             for file in note_files:
                 file_buffer = file.readframes(self.chunk_size)
@@ -68,7 +68,7 @@ class Synth():
                     file.rewind()
                     file_buffer = file.readframes(self.chunk_size - len(float32_array_from_buffer))
                     buffer_complement = np.frombuffer(file_buffer, dtype=np.int16).astype(np.float32)
-                    print("COMPLEMENT")
+                    # print("COMPLEMENT")
                     print(base_waveform)
                     slice_index = np.argmax(buffer_complement < float32_array_from_buffer[len(float32_array_from_buffer)-1])
                     float32_array_from_buffer = np.concatenate([float32_array_from_buffer, buffer_complement[slice_index:]])
@@ -81,7 +81,7 @@ class Synth():
                 base_waveform = base_waveform + float32_array_from_buffer
             # if base_waveform:
             base_waveform = np.int16(self.squishify(base_waveform))
-            print("FINAL CHUNK: {}".format(base_waveform))
+            # print("FINAL CHUNK: {}".format(base_waveform))
             base_waveform = base_waveform.tobytes()
             
             stream.write(base_waveform)
@@ -97,13 +97,13 @@ class Synth():
         return pointers
     
 if __name__ == '__main__':
-
+    # app = QApplication(sys.argv)
     synth = Synth()
     ratio = 1.05946
     base_frequency = 200
     filename_1st = synth.synthesizeNote(base_frequency, 1, 0.7, 0.8, 0.3)
     filename_3rd = synth.synthesizeNote(base_frequency * (ratio **4), 1, 0.7, 0.8, 0.3)
     filename_5th = synth.synthesizeNote(base_frequency * (ratio **7), 1, 0.7, 0.8, 0.3)
-    filename_7th = synth.synthesizeNote(base_frequency * (ratio **10), 1, 0.7, 0.8, 0.3)
+    filename_7th = synth.synthesizeNote(base_frequency * (ratio **14), 1, 0.7, 0.8, 0.3)
     synth.play()
     
