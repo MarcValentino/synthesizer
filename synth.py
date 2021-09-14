@@ -3,15 +3,18 @@ from scipy.io.wavfile import write
 import pyaudio
 import wave
 
+from soundUtils import SoundUtils
+
 class Synth():
 
-    filenames = []
+    filenames = {}
     sps = 44100
     duration_s = 0.5
     max_range = 32767
     filename_prefix = "NOTE_"
     filename_extension = ".wav"
     chunk_size = 1024
+    # sound_utils = SoundUtils()
     p = pyaudio.PyAudio()
 
 
@@ -32,7 +35,7 @@ class Synth():
             
             write(wavfile_name, self.sps, base_waveform_int16)
 
-        self.filenames.append(wave.open(wavfile_name, "rb"))
+        # self.filenames[wavfile_name] = wave.open(wavfile_name, "rb")
         return wavfile_name
 
     def squishify(self, sample_array):
@@ -44,6 +47,7 @@ class Synth():
         return sample_array 
     
     def play(self):
+        
         base_waveform = np.zeros(self.chunk_size, np.float32)
 
         stream = self.p.open(format=self.p.get_format_from_width(2),
@@ -52,11 +56,11 @@ class Synth():
                     output=True)
         
 
-        note_files = self.filenames
+        note_files = self.filenames.values()
 
         while True:
-            
-            if len(note_files) == 0: return
+            print(self.filenames.keys())
+            # if len(note_files) == 0: return
             for file in note_files:
                 file_buffer = file.readframes(self.chunk_size)
                 if len(file_buffer) <= 0:
@@ -96,14 +100,8 @@ class Synth():
         
         return pointers
     
-if __name__ == '__main__':
-    # app = QApplication(sys.argv)
-    synth = Synth()
-    ratio = 1.05946
-    base_frequency = 200
-    filename_1st = synth.synthesizeNote(base_frequency, 1, 0.7, 0.8, 0.3)
-    filename_3rd = synth.synthesizeNote(base_frequency * (ratio **4), 1, 0.7, 0.8, 0.3)
-    filename_5th = synth.synthesizeNote(base_frequency * (ratio **7), 1, 0.7, 0.8, 0.3)
-    filename_7th = synth.synthesizeNote(base_frequency * (ratio **14), 1, 0.7, 0.8, 0.3)
-    synth.play()
-    
+    def removeFilePointer(self, index):
+        del self.filenames[index]
+
+    def addFilePointer(self, filename):
+        self.filenames[filename] = wave.open(filename, "rb")

@@ -15,6 +15,8 @@ if __name__ == '__main__':
     filename_1st = threaded_synth.synthesizeNote(base_frequency, 1, 0.7, 0.8, 0.3) #só toma cuidado que por agora synth.play() morre se você não tiver nota alguma tocando
     threaded_synth.start()
     time.sleep(1)
-    filename_3rd = threaded_synth.synthesizeNote(base_frequency * (ratio **4), 1, 0.7, 0.8, 0.3)
+    filename_3rd = threaded_synth.synthesizeNote(base_frequency * (ratio **6), 1, 0.7, 0.8, 0.3)
     time.sleep(1)
-    filename_5th = threaded_synth.synthesizeNote(base_frequency * (ratio **7), 1, 0.7, 0.8, 0.3)
+    filename_5th = threaded_synth.synthesizeNote(base_frequency * (ratio **14), 1, 0.7, 0.8, 0.3)
+    time.sleep(1)
+    threaded_synth.removeFilePointer(filename_5th)
